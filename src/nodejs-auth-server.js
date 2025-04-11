@@ -28,7 +28,7 @@ passport.use(
 passport.serializeUser((user, done) => done(null, user));
 passport.deserializeUser((user, done) => done(null, user));
 
-// Creates an express web server
+// Creates an Express web server
 const app = express();
 
 // Parses URL-encoded data from POST requests (used for the SAML responses)
