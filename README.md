@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next.js project with SAML and Okta
 
-## Getting Started
+A SAML authentication example with Okta as the Identity provider and a this project as the Service Provider.
 
-First, run the development server:
+The nodejs-auth-server.js acts as the Service Provider, handling the SAML protocol, sessions, callback, and user verification.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+The rest of the Next.js project provides the frontend of the app, forwarding login requests to the auth server.
+
+## Set up
+
+1. Add the Next.js app to Okta
+
+- Set up Okta account and log into Admin panel
+- Go to Applications --> Create App Integration --> SAML 2.0
+- App Name: "Next.js SAML app" --> Click "Next"
+- "Configure SAML" tab
+  - Single sign-on URL: "http://localhost:4000/login/callback"
+  - Audience URI (SP Entity ID): "nextjs-saml-app"
+  - Name ID format: "EmailAddress"
+  - Application username: "Email"
+  - Click "Next"
+- "Feedback" tab
+  - Click "Finish"
+- Click on "Assignments" tab for your app in Okta.
+  - Add yourself as a user: Assign --> Assign to People --> find yourself and click "Assign" --> "Save and go back" --> "Done"
+
+2. Create a .env.local file in the root of this Next.js repo
+
+Add the following lines:
+
+```
+OKTA_ENTRY_POINT=<OKTA_ENTRY_POINT>
+OKTA_ISSUER=nextjs-saml-app
+OKTA_CERT=<OKTA_CERT>
+SAML_CALLBACK_URL=http://localhost:4000/login/callback
 ```
 
+You need to add the OKTA_ENTRY_POINT and OKTA_CERT. You will find the values for these in Okta...
+
+- In your application in Okta, go to the "Sign On" tab.
+- Click "View SAML setup instructions"
+- Copy the value of the Identity Provider Single Sign-On URL and use it to replace <OKTA_ENTRY_POINT> in your .env.local
+- Copy the value of the X.509 Certificate and use it to replace <OKTA_CERT>
+
+## To run the code:
+
+Please note the Node.js auth server code wont run without Okta certificates. You'll need to follow the previous setup section before you can run the server.
+
+### Install dependencies:
+
+`npm install express passport passport-saml express-session dotenv`
+
+### Start Node.js auth server:
+
+`node src/nodejs-auth-server.js`
+
+### Start Next.js project for the front end:
+
+`npm run dev`
+
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
